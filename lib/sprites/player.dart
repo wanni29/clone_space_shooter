@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flame/components.dart';
-import 'package:space_shooter_game/bullet.dart';
+import 'package:space_shooter_game/sprites/bullet.dart';
 import 'package:space_shooter_game/space_shooter_game.dart';
 
 class Player extends SpriteAnimationComponent

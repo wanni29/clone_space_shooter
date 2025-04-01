@@ -7,8 +7,8 @@ import 'package:flame/input.dart';
 import 'package:flame/parallax.dart';
 import 'package:flame/src/gestures/events.dart';
 import 'package:flutter/rendering.dart';
-import 'package:space_shooter_game/enemy.dart';
-import 'package:space_shooter_game/player.dart';
+import 'package:space_shooter_game/sprites/enemy.dart';
+import 'package:space_shooter_game/sprites/player.dart';
 
 class SpaceShooterGame extends FlameGame
     with PanDetector, HasCollisionDetection {

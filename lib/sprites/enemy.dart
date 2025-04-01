@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
-import 'package:space_shooter_game/bullet.dart';
-import 'package:space_shooter_game/explosion.dart';
+import 'package:space_shooter_game/sprites/bullet.dart';
+import 'package:space_shooter_game/sprites/explosion.dart';
 import 'package:space_shooter_game/space_shooter_game.dart';
 
 class Enemy extends SpriteAnimationComponent
