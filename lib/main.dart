@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_shooter_game/space_shooter_game.dart';
 import 'package:space_shooter_game/util/color_schemes.dart';
+import 'package:space_shooter_game/widgets/main_menu_overlay.dart';
 
 void main() {
   runApp(const MyApp());
@@ -42,19 +43,14 @@ class _MyWidgetState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          return Container(
-            constraints: const BoxConstraints(maxHeight: 800, minWidth: 550),
-            child: GameWidget(
-              game: game,
-              overlayBuilderMap: <String, Widget Function(BuildContext, Game)>{
-                // 'mainMenuOverlay': (context, game) => MainMenuOverlay(game),
-                // 'gameOverOverlay': (context, game) => GameOverOverlay(game),
-              },
-            ),
-          );
-        },
+      body: Container(
+        child: GameWidget(
+          game: game,
+          overlayBuilderMap: <String, Widget Function(BuildContext, Game)>{
+            'mainMenuOverlay': (context, game) => MainMenuOverlay(game),
+            // 'gameOverOverlay': (context, game) => GameOverOverlay(game),
+          },
+        ),
       ),
     );
   }

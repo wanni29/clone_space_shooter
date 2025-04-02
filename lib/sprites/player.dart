@@ -9,11 +9,12 @@ class Player extends SpriteAnimationComponent
   Player() : super(size: Vector2(100, 150), anchor: Anchor.bottomCenter);
 
   late final SpawnComponent _bulletSpawner;
+  late final SpriteAnimation _playerAnimation;
   @override
   FutureOr<void> onLoad() async {
     super.onLoad();
 
-    animation = await game.loadSpriteAnimation(
+    _playerAnimation = await game.loadSpriteAnimation(
       'player.png',
       SpriteAnimationData.sequenced(
         amount: 4,
@@ -22,6 +23,7 @@ class Player extends SpriteAnimationComponent
       ),
     );
 
+    animation = _playerAnimation;
     position = game.size / 2;
 
     _bulletSpawner = SpawnComponent(
@@ -35,6 +37,8 @@ class Player extends SpriteAnimationComponent
 
     game.add(_bulletSpawner);
   }
+
+  SpriteAnimation get playerAnimation => _playerAnimation;
 
   void move(Vector2 delta) {
     position.add(delta);
