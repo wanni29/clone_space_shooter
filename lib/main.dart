@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_shooter_game/space_shooter_game.dart';
 import 'package:space_shooter_game/util/color_schemes.dart';
+import 'package:space_shooter_game/widgets/game_overlay.dart';
 import 'package:space_shooter_game/widgets/main_menu_overlay.dart';
 
 void main() {
@@ -47,6 +48,7 @@ class _MyWidgetState extends State<MyHomePage> {
         child: GameWidget(
           game: game,
           overlayBuilderMap: <String, Widget Function(BuildContext, Game)>{
+            'gameOverlay': (context, game) => GameOverlay(game),
             'mainMenuOverlay': (context, game) => MainMenuOverlay(game),
             // 'gameOverOverlay': (context, game) => GameOverOverlay(game),
           },

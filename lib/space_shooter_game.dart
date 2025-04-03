@@ -45,6 +45,8 @@ class SpaceShooterGame extends FlameGame
         area: Rectangle.fromLTWH(0, 0, size.x, -Enemy.enemySize),
       ),
     );
+
+    overlays.add('gameOverlay');
   }
 
   @override
@@ -79,6 +81,14 @@ class SpaceShooterGame extends FlameGame
     if (gameManager.isIntro) {
       overlays.add('mainMenuOverlay');
       return;
+    }
+  }
+
+  void togglePauseState() {
+    if (paused) {
+      resumeEngine();
+    } else {
+      pauseEngine();
     }
   }
 }
