@@ -70,6 +70,17 @@ class SpaceShooterGame extends FlameGame
     overlays.remove('mainMenuOverlay');
   }
 
+  void resetGame() {
+    startGame();
+    overlays.remove('gameOverOverlay');
+  }
+
+  void onLose() {
+    gameManager.state = GameState.gameOver;
+    player.removeFromParent();
+    overlays.add('gameOverOverlay');
+  }
+
   @override
   void update(double dt) {
     super.update(dt);

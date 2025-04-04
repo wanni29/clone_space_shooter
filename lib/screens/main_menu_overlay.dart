@@ -2,8 +2,8 @@ import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:space_shooter_game/space_shooter_game.dart';
 import 'package:space_shooter_game/sprites/player.dart';
-import 'package:space_shooter_game/widgets/character_button.dart';
-import 'package:space_shooter_game/widgets/white_space.dart';
+import 'package:space_shooter_game/screens/widgets/character_button.dart';
+import 'package:space_shooter_game/screens/widgets/white_space.dart';
 
 class MainMenuOverlay extends StatefulWidget {
   const MainMenuOverlay(this.game, {super.key});

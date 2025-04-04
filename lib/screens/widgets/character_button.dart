@@ -3,7 +3,7 @@ import 'package:flame/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flame/flame.dart';
 import 'package:space_shooter_game/space_shooter_game.dart';
-import 'package:space_shooter_game/widgets/white_space.dart';
+import 'package:space_shooter_game/screens/widgets/white_space.dart';
 
 class CharacterButton extends StatefulWidget {
   const CharacterButton({

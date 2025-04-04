@@ -1,10 +1,11 @@
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:space_shooter_game/screens/game_over_overlay.dart';
 import 'package:space_shooter_game/space_shooter_game.dart';
 import 'package:space_shooter_game/util/color_schemes.dart';
-import 'package:space_shooter_game/widgets/game_overlay.dart';
-import 'package:space_shooter_game/widgets/main_menu_overlay.dart';
+import 'package:space_shooter_game/screens/game_overlay.dart';
+import 'package:space_shooter_game/screens/main_menu_overlay.dart';
 
 void main() {
   runApp(const MyApp());
@@ -50,7 +51,7 @@ class _MyWidgetState extends State<MyHomePage> {
           overlayBuilderMap: <String, Widget Function(BuildContext, Game)>{
             'gameOverlay': (context, game) => GameOverlay(game),
             'mainMenuOverlay': (context, game) => MainMenuOverlay(game),
-            // 'gameOverOverlay': (context, game) => GameOverOverlay(game),
+            'gameOverOverlay': (context, game) => GameOverOverlay(game),
           },
         ),
       ),
