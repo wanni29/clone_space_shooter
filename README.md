@@ -16,5 +16,16 @@
 - [ ] 플레이어 캐릭터 추가하기 
 
 # 참고 문서 및 파일
--> flame-building-doodle-dash
+-> flame-building-doodle-dash 
+- 레이아웃 및 게임을 제외한 화면 제어 참고
+- 파일 구조 및 매니저 파일 참고
+- 색상 파일 참고
+
 -> flutter-space-shooter
+- 이미지 참고
+- 게임 로직 참고
+- 충돌 및 스프라이트 애니메이션 참고
+
+ -> http://www.spritecow.com/
+ - 스프라이트 시트의 정확한 좌표값 알아내기
+ - 스프라이트의 정확한 넓이 및 높이 알아내기
