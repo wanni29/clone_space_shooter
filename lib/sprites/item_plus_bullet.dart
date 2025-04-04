@@ -39,6 +39,7 @@ class ItemPlusBullet extends SpriteComponent
     super.onCollisionStart(intersectionPoints, other);
 
     if (other is Player) {
+      other.increaseBullet(); // 🔥 플레이어의 총알 개수를 증가시킴
       removeFromParent();
     }
   }

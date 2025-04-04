@@ -11,6 +11,8 @@ class Player extends SpriteAnimationComponent
 
   int maxHealth = 3; // 최대 체력
   int currentHealth = 3; // 현재 체력
+  int bulletCount = 1;
+  static const int maxBulletCount = 5;
 
   late final SpawnComponent _bulletSpawner;
   late final SpriteAnimation _playerAnimation;
@@ -35,13 +37,24 @@ class Player extends SpriteAnimationComponent
     _bulletSpawner = SpawnComponent(
       period: .2,
       selfPositioning: true,
-      factory: (index) {
-        return Bullet(position: position + Vector2(0, -height / 2));
-      },
+      factory: (index) => BulletGroup(_createBullets()),
       autoStart: false,
     );
 
     game.add(_bulletSpawner);
+  }
+
+  List<Bullet> _createBullets() {
+    List<Bullet> bullets = [];
+    for (int i = 0; i < bulletCount; i++) {
+      bullets.add(
+        Bullet(
+          position:
+              position + Vector2(i * 30 - (bulletCount - 1) * 15, -height / 2),
+        ),
+      );
+    }
+    return bullets;
   }
 
   SpriteAnimation get playerAnimation => _playerAnimation;
@@ -68,5 +81,18 @@ class Player extends SpriteAnimationComponent
   void onPlayerHit() {
     takeDamage();
     gameRef.healthBar.updateHealth(currentHealth);
+  }
+
+  void increaseBullet() {
+    if (bulletCount < maxBulletCount) {
+      bulletCount++;
+    }
+  }
+}
+
+/// 여러 개의 총알을 한 번에 추가할 수 있도록 하는 그룹 컴포넌트
+class BulletGroup extends PositionComponent {
+  BulletGroup(List<Bullet> bullets) {
+    addAll(bullets);
   }
 }
