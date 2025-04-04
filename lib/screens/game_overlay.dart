@@ -51,6 +51,55 @@ class _GameOverlayState extends State<GameOverlay> {
             ),
           ),
         ),
+        ValueListenableBuilder<int>(
+          valueListenable:
+              (widget.game as SpaceShooterGame).player.bulletCountForMode,
+          builder: (context, bulletCountForMode, child) {
+            return Visibility(
+              visible: bulletCountForMode == 5,
+              child: Positioned(
+                bottom: 30,
+                right: 30,
+                child: Row(
+                  children: [
+                    GestureDetector(
+                      onTap:
+                          (widget.game as SpaceShooterGame)
+                              .player
+                              .toggleBulletMode,
+                      child: Container(
+                        width: 200,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(
+                            0.5,
+                          ), // 버튼이 잘 보이게 반투명 배경 추가
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Center(
+                          child: Text(
+                            (widget.game as SpaceShooterGame)
+                                        .player
+                                        .isSpreadMode ==
+                                    false
+                                ? 'Straight'
+                                : 'Spread',
+                            style: Theme.of(
+                              context,
+                            ).textTheme.headlineMedium?.copyWith(
+                              color: Colors.white, // 원하는 색상 적용
+                              fontWeight: FontWeight.bold, // 글자 굵기 조절
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
       ],
     );
   }

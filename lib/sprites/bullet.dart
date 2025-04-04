@@ -4,7 +4,9 @@ import 'package:space_shooter_game/space_shooter_game.dart';
 
 class Bullet extends SpriteAnimationComponent
     with HasGameRef<SpaceShooterGame> {
-  Bullet({super.position})
+  Vector2 velocity; // 🔹 총알 속도 추가
+
+  Bullet({super.position, required this.velocity})
     : super(size: Vector2(25, 50), anchor: Anchor.center);
 
   @override
@@ -27,7 +29,7 @@ class Bullet extends SpriteAnimationComponent
   void update(double dt) {
     super.update(dt);
 
-    position.y += dt * -500;
+    position += velocity * dt; // 🔹 속도 적용
 
     if (position.y < -height) {
       removeFromParent();

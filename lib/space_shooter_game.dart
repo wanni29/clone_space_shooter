@@ -57,7 +57,7 @@ class SpaceShooterGame extends FlameGame
         factory: (index) {
           return ItemPlusBullet();
         },
-        period: 5,
+        period: 1,
         // 주의! : 총알이 리스폰 되는 포지션이 화면의 모서리에 겹치게 되면 총알이 움직이지 않음!
         area: Rectangle.fromLTWH(
           40,
