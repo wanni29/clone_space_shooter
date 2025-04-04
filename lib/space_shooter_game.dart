@@ -10,6 +10,7 @@ import 'package:flutter/rendering.dart';
 import 'package:space_shooter_game/managers/game_manager.dart';
 import 'package:space_shooter_game/sprites/enemy.dart';
 import 'package:space_shooter_game/sprites/health_bar.dart';
+import 'package:space_shooter_game/sprites/item_plus_bullet.dart';
 import 'package:space_shooter_game/sprites/player.dart';
 
 enum Character { player }
@@ -48,6 +49,21 @@ class SpaceShooterGame extends FlameGame
         },
         period: 1,
         area: Rectangle.fromLTWH(0, 0, size.x, -Enemy.enemySize),
+      ),
+    );
+
+    add(
+      SpawnComponent(
+        factory: (index) {
+          return ItemPlusBullet();
+        },
+        period: 1, // 아이템이 나오는 주기를 조절 할수있음
+        area: Rectangle.fromLTWH(
+          0,
+          0,
+          size.x,
+          -ItemPlusBullet.itemPlusBulletSize.x,
+        ),
       ),
     );
 

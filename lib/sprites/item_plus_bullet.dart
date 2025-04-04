@@ -2,17 +2,15 @@ import 'dart:async';
 
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
-import 'package:space_shooter_game/sprites/bullet.dart';
-import 'package:space_shooter_game/sprites/explosion.dart';
 import 'package:space_shooter_game/space_shooter_game.dart';
 import 'package:space_shooter_game/sprites/player.dart';
 
-class Enemy extends SpriteAnimationComponent
+class ItemPlusBullet extends SpriteComponent
     with HasGameRef<SpaceShooterGame>, CollisionCallbacks {
-  Enemy({super.position})
-    : super(size: Vector2.all(enemySize), anchor: Anchor.center);
+  ItemPlusBullet({super.position})
+    : super(size: itemPlusBulletSize, anchor: Anchor.center);
 
-  static const enemySize = 80.0;
+  static Vector2 itemPlusBulletSize = Vector2(30.0, 60.0);
 
   @override
   Future<void> onLoad() async {
@@ -20,14 +18,7 @@ class Enemy extends SpriteAnimationComponent
 
     add(RectangleHitbox());
 
-    animation = await game.loadSpriteAnimation(
-      'enemy.png',
-      SpriteAnimationData.sequenced(
-        amount: 4,
-        stepTime: .2,
-        textureSize: Vector2.all(32),
-      ),
-    );
+    sprite = await game.loadSprite('item_plus_bullet.png');
   }
 
   @override
@@ -47,15 +38,8 @@ class Enemy extends SpriteAnimationComponent
   ) {
     super.onCollisionStart(intersectionPoints, other);
 
-    if (other is Bullet) {
-      removeFromParent();
-      other.removeFromParent();
-      game.add(Explosion(position: position));
-    }
-
     if (other is Player) {
-      game.player.onPlayerHit(); // 체력 감소
-      removeFromParent(); // 적 제거
+      removeFromParent();
     }
   }
 }
