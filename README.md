@@ -29,3 +29,6 @@
  -> http://www.spritecow.com/
  - 스프라이트 시트의 정확한 좌표값 알아내기
  - 스프라이트의 정확한 넓이 및 높이 알아내기
+
+ ->  https://opengameart.org/
+ - 스프라이트 이미지 서치 및 구하기 
