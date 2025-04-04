@@ -63,10 +63,11 @@ class _GameOverlayState extends State<GameOverlay> {
                 child: Row(
                   children: [
                     GestureDetector(
-                      onTap:
-                          (widget.game as SpaceShooterGame)
-                              .player
-                              .toggleBulletMode,
+                      onTap: () {
+                        (widget.game as SpaceShooterGame).player
+                            .toggleBulletMode();
+                        setState(() {});
+                      },
                       child: Container(
                         width: 200,
                         height: 100,

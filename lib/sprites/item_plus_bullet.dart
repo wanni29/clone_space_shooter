@@ -100,7 +100,6 @@ class ItemPlusBullet extends SpriteComponent
 
     if (other is Player) {
       if (!isRemoving) {
-        print("🎯 아이템 충돌 발생! increaseBullet 실행");
         removeFromParent(); // 아이템 즉시 제거해서 중복 충돌 방지
         other.increaseBullet();
       }
