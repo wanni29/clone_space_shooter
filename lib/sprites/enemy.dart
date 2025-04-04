@@ -5,6 +5,7 @@ import 'package:flame/components.dart';
 import 'package:space_shooter_game/sprites/bullet.dart';
 import 'package:space_shooter_game/sprites/explosion.dart';
 import 'package:space_shooter_game/space_shooter_game.dart';
+import 'package:space_shooter_game/sprites/player.dart';
 
 class Enemy extends SpriteAnimationComponent
     with HasGameRef<SpaceShooterGame>, CollisionCallbacks {
@@ -50,6 +51,11 @@ class Enemy extends SpriteAnimationComponent
       removeFromParent();
       other.removeFromParent();
       game.add(Explosion(position: position));
+    }
+
+    if (other is Player) {
+      game.player.onPlayerHit(); // 체력 감소
+      removeFromParent(); // 적 제거
     }
   }
 }

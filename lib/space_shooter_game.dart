@@ -9,6 +9,7 @@ import 'package:flame/src/gestures/events.dart';
 import 'package:flutter/rendering.dart';
 import 'package:space_shooter_game/managers/game_manager.dart';
 import 'package:space_shooter_game/sprites/enemy.dart';
+import 'package:space_shooter_game/sprites/health_bar.dart';
 import 'package:space_shooter_game/sprites/player.dart';
 
 enum Character { player }
@@ -16,6 +17,7 @@ enum Character { player }
 class SpaceShooterGame extends FlameGame
     with PanDetector, HasCollisionDetection {
   late Player player;
+  late HealthBar healthBar;
 
   GameManager gameManager = GameManager();
 
@@ -35,6 +37,9 @@ class SpaceShooterGame extends FlameGame
 
     player = Player();
     add(player);
+
+    healthBar = HealthBar(maxHealth: player.maxHealth);
+    add(healthBar);
 
     add(
       SpawnComponent(
@@ -68,9 +73,25 @@ class SpaceShooterGame extends FlameGame
     gameManager.reset();
     gameManager.state = GameState.playing;
     overlays.remove('mainMenuOverlay');
+
+    // 기존 플레이어 다시 추가
+    if (!children.contains(player)) {
+      // 플레이어가 없을 때만 추가
+      add(player);
+    }
   }
 
   void resetGame() {
+    removeAll(children.whereType<Enemy>()); // 모든 적 제거
+    player.removeFromParent(); // 플레이어 제거
+    healthBar.removeFromParent(); // 체력바 제거
+
+    player = Player();
+    healthBar = HealthBar(maxHealth: player.maxHealth);
+
+    add(player);
+    add(healthBar);
+
     startGame();
     overlays.remove('gameOverOverlay');
   }
