@@ -10,6 +10,7 @@ import 'package:flutter/rendering.dart';
 import 'package:space_shooter_game/managers/game_manager.dart';
 import 'package:space_shooter_game/sprites/enemy.dart';
 import 'package:space_shooter_game/sprites/health_bar.dart';
+import 'package:space_shooter_game/sprites/item_laser_supporter.dart';
 import 'package:space_shooter_game/sprites/item_plus_bullet.dart';
 import 'package:space_shooter_game/sprites/player.dart';
 
@@ -56,6 +57,22 @@ class SpaceShooterGame extends FlameGame
       SpawnComponent(
         factory: (index) {
           return ItemPlusBullet();
+        },
+        period: 1,
+        // 주의! : 총알이 리스폰 되는 포지션이 화면의 모서리에 겹치게 되면 총알이 움직이지 않음!
+        area: Rectangle.fromLTWH(
+          40,
+          70,
+          size.x,
+          -ItemPlusBullet.itemPlusBulletSize.x,
+        ),
+      ),
+    );
+
+    add(
+      SpawnComponent(
+        factory: (index) {
+          return ItemLaserSupporter();
         },
         period: 1,
         // 주의! : 총알이 리스폰 되는 포지션이 화면의 모서리에 겹치게 되면 총알이 움직이지 않음!
