@@ -5,6 +5,7 @@ import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'package:space_shooter_game/sprites/bullet.dart';
 import 'package:space_shooter_game/space_shooter_game.dart';
+import 'package:space_shooter_game/sprites/laser_beam.dart';
 
 class Player extends SpriteAnimationComponent
     with HasGameRef<SpaceShooterGame> {
@@ -35,6 +36,8 @@ class Player extends SpriteAnimationComponent
       add(supporter); // Player에 붙임
     }
   }
+
+  double laserShootCooldown = 0;
   // -- 레이저 서포트 관련 상태 --
 
   @override
@@ -158,6 +161,15 @@ class Player extends SpriteAnimationComponent
     if (laserSupporters.length == 2) {
       laserSupporters[1].position = offset2;
     }
+
+    // 쿨다운 관리
+    laserShootCooldown -= dt;
+    if (laserShootCooldown <= 0) {
+      for (var supporter in laserSupporters) {
+        supporter.shootLaser(); // 드론들에게 발사 명령
+      }
+      laserShootCooldown = 2; // 다음 발사까지 쿨다운
+    }
   }
 }
 
@@ -173,9 +185,11 @@ class LaserSupporterAttachment extends SpriteAnimationComponent
   LaserSupporterAttachment()
     : super(size: Vector2(55, 55), anchor: Anchor.center);
 
+  double shootCooldown = 0;
+
   @override
   Future<void> onLoad() async {
-    animation = await game.loadSpriteAnimation(
+    animation = await gameRef.loadSpriteAnimation(
       'item_laser_supporter.png',
       SpriteAnimationData.sequenced(
         amount: 4,
@@ -183,5 +197,13 @@ class LaserSupporterAttachment extends SpriteAnimationComponent
         textureSize: Vector2(32, 32),
       ),
     );
+  }
+
+  void shootLaser() {
+    final currentGlobalPosition = absolutePosition;
+    final laser = LaserBeam(
+      startPosition: currentGlobalPosition - Vector2(0, size.y + 230),
+    );
+    gameRef.add(laser);
   }
 }

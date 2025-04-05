@@ -5,6 +5,7 @@ import 'package:flame/components.dart';
 import 'package:space_shooter_game/sprites/bullet.dart';
 import 'package:space_shooter_game/sprites/explosion.dart';
 import 'package:space_shooter_game/space_shooter_game.dart';
+import 'package:space_shooter_game/sprites/laser_beam.dart';
 import 'package:space_shooter_game/sprites/player.dart';
 
 class Enemy extends SpriteAnimationComponent
@@ -47,9 +48,14 @@ class Enemy extends SpriteAnimationComponent
   ) {
     super.onCollisionStart(intersectionPoints, other);
 
-    if (other is Bullet) {
+    // if (other is Bullet) {
+    //   removeFromParent();
+    //   other.removeFromParent();
+    //   game.add(Explosion(position: position));
+    // }
+
+    if (other is LaserBeam) {
       removeFromParent();
-      other.removeFromParent();
       game.add(Explosion(position: position));
     }
 
