@@ -8,7 +8,7 @@ import 'package:space_shooter_game/space_shooter_game.dart';
 
 class Player extends SpriteAnimationComponent
     with HasGameRef<SpaceShooterGame> {
-  Player() : super(size: Vector2(100, 150), anchor: Anchor.bottomCenter);
+  Player() : super(size: Vector2(100, 150), anchor: Anchor.center);
 
   int maxHealth = 3; // 최대 체력
   int currentHealth = 3; // 현재 체력
@@ -22,6 +22,21 @@ class Player extends SpriteAnimationComponent
 
   late final SpawnComponent _bulletSpawner;
   late final SpriteAnimation _playerAnimation;
+
+  // -- 레이저 서포트 관련 상태 --
+  final int maxLaserSupporters = 2;
+  final List<LaserSupporterAttachment> laserSupporters = [];
+
+  bool canAddLaserSupporter() => laserSupporters.length < maxLaserSupporters;
+
+  void addLaserSupporter(LaserSupporterAttachment supporter) {
+    if (canAddLaserSupporter()) {
+      laserSupporters.add(supporter);
+      add(supporter); // Player에 붙임
+    }
+  }
+  // -- 레이저 서포트 관련 상태 --
+
   @override
   FutureOr<void> onLoad() async {
     super.onLoad();
@@ -127,11 +142,46 @@ class Player extends SpriteAnimationComponent
       print('실험 - 총알 현재 갯수 : ${gameRef.player.bulletCount}');
     }
   }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+
+    // Player update 내부에서 supporter 위치 계산
+    final offset1 = Vector2(130, 100);
+    final offset2 = Vector2(-30, 100);
+
+    if (laserSupporters.length == 1) {
+      laserSupporters[0].position = offset1;
+    }
+
+    if (laserSupporters.length == 2) {
+      laserSupporters[1].position = offset2;
+    }
+  }
 }
 
 /// 여러 개의 총알을 한 번에 추가할 수 있도록 하는 그룹 컴포넌트
 class BulletGroup extends PositionComponent {
   BulletGroup(List<Bullet> bullets) {
     addAll(bullets);
+  }
+}
+
+class LaserSupporterAttachment extends SpriteAnimationComponent
+    with HasGameRef<SpaceShooterGame> {
+  LaserSupporterAttachment()
+    : super(size: Vector2(55, 55), anchor: Anchor.center);
+
+  @override
+  Future<void> onLoad() async {
+    animation = await game.loadSpriteAnimation(
+      'item_laser_supporter.png',
+      SpriteAnimationData.sequenced(
+        amount: 4,
+        stepTime: .2,
+        textureSize: Vector2(32, 32),
+      ),
+    );
   }
 }

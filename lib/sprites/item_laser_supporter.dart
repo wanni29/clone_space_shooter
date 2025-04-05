@@ -103,8 +103,11 @@ class ItemLaserSupporter extends SpriteAnimationComponent
     super.onCollisionStart(intersectionPoints, other);
 
     if (other is Player) {
-      if (!isRemoving) {
-        removeFromParent(); // 아이템 즉시 제거해서 중복 충돌 방지
+      if (!isRemoving && other.canAddLaserSupporter()) {
+        // 장착 가능한 경우에만 supporter 추가
+        other.addLaserSupporter(LaserSupporterAttachment());
+
+        removeFromParent(); // 아이템 제거
       }
     }
   }
