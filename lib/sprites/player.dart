@@ -168,7 +168,7 @@ class Player extends SpriteAnimationComponent
       for (var supporter in laserSupporters) {
         supporter.shootLaser(); // 드론들에게 발사 명령
       }
-      laserShootCooldown = 2; // 다음 발사까지 쿨다운
+      laserShootCooldown = 0.8; // 다음 발사까지 쿨다운
     }
   }
 }

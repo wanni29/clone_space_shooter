@@ -9,11 +9,12 @@ class LaserBeam extends RectangleComponent with HasGameRef<SpaceShooterGame> {
   LaserBeam({required Vector2 startPosition})
     : super(
         position: startPosition,
-        size: Vector2(6, 240),
-        paint: Paint()..color = const Color(0xFF00FFFF), // 초기 색상
+        size: Vector2(6, 0), // 처음엔 아주 짧게 시작!
+        paint: Paint()..color = const Color(0xFF00FFFF),
       );
 
-  double lifetime = 0.3;
+  double maxLifetime = 0.4;
+  double lifetime = 0.4;
   final _random = Random();
 
   @override
@@ -26,15 +27,26 @@ class LaserBeam extends RectangleComponent with HasGameRef<SpaceShooterGame> {
   void update(double dt) {
     super.update(dt);
 
-    // 보라색 + 파란색 계열 번갈아 표현 (플래시 느낌)
-    final bool usePurple = _random.nextBool();
-    if (usePurple) {
-      paint.color = const Color(0xFFAA00FF); // 보라색
-    } else {
-      paint.color = const Color(0xFF00FFFF); // 파란색
-    }
-
     lifetime -= dt;
+
+    final progress = (1 - (lifetime / maxLifetime)).clamp(0, 1);
+
+    // ⚡️ 1. 길이 점점 늘리기
+    final double maxHeight = 240;
+    final double newHeight = maxHeight * (progress < 0.3 ? progress * 3.3 : 1);
+    size.y = newHeight;
+
+    // ⚡️ 2. 색상 번갈아: 보라색 or 파란색
+    final bool usePurple = _random.nextBool();
+    final baseColor =
+        usePurple ? const Color(0xFFAA00FF) : const Color(0xFF00FFFF);
+
+    // ⚡️ 3. 투명도 서서히 줄이기
+    final double alphaRatio = lifetime / maxLifetime;
+    final int alpha = (255 * alphaRatio).clamp(0, 255).toInt();
+    paint.color = baseColor.withAlpha(alpha);
+
+    // ⚡️ 4. 제거
     if (lifetime <= 0) {
       removeFromParent();
     }
