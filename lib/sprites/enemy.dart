@@ -48,11 +48,11 @@ class Enemy extends SpriteAnimationComponent
   ) {
     super.onCollisionStart(intersectionPoints, other);
 
-    // if (other is Bullet) {
-    //   removeFromParent();
-    //   other.removeFromParent();
-    //   game.add(Explosion(position: position));
-    // }
+    if (other is Bullet) {
+      removeFromParent();
+      other.removeFromParent();
+      game.add(Explosion(position: position));
+    }
 
     if (other is LaserBeam) {
       removeFromParent();
