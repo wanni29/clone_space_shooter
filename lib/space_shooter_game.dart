@@ -8,6 +8,7 @@ import 'package:flame/parallax.dart';
 import 'package:flame/src/gestures/events.dart';
 import 'package:flutter/rendering.dart';
 import 'package:space_shooter_game/managers/game_manager.dart';
+import 'package:space_shooter_game/sprites/boss.dart';
 import 'package:space_shooter_game/sprites/enemy.dart';
 import 'package:space_shooter_game/sprites/health_bar.dart';
 import 'package:space_shooter_game/sprites/item_laser_supporter.dart';
@@ -19,6 +20,7 @@ enum Character { player }
 class SpaceShooterGame extends FlameGame
     with PanDetector, HasCollisionDetection {
   late Player player;
+  late Boss boss;
   late HealthBar healthBar;
 
   GameManager gameManager = GameManager();
@@ -84,6 +86,10 @@ class SpaceShooterGame extends FlameGame
         ),
       ),
     );
+
+    boss = Boss();
+
+    add(boss);
 
     overlays.add('gameOverlay');
   }

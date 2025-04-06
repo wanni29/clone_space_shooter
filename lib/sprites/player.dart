@@ -142,7 +142,6 @@ class Player extends SpriteAnimationComponent
     if (bulletCount < 5) {
       bulletCount++;
       bulletCountForMode.value++;
-      print('실험 - 총알 현재 갯수 : ${gameRef.player.bulletCount}');
     }
   }
 
