@@ -45,47 +45,47 @@ class SpaceShooterGame extends FlameGame
     healthBar = HealthBar(maxHealth: player.maxHealth);
     add(healthBar);
 
-    // add(
-    //   SpawnComponent(
-    //     factory: (index) {
-    //       return Enemy();
-    //     },
-    //     period: 1,
-    //     area: Rectangle.fromLTWH(0, 0, size.x, -Enemy.enemySize),
-    //   ),
-    // );
+    add(
+      SpawnComponent(
+        factory: (index) {
+          return Enemy();
+        },
+        period: 1,
+        area: Rectangle.fromLTWH(0, 0, size.x, -Enemy.enemySize),
+      ),
+    );
 
-    // add(
-    //   SpawnComponent(
-    //     factory: (index) {
-    //       return ItemPlusBullet();
-    //     },
-    //     period: 1,
-    //     // 주의! : 총알이 리스폰 되는 포지션이 화면의 모서리에 겹치게 되면 총알이 움직이지 않음!
-    //     area: Rectangle.fromLTWH(
-    //       40,
-    //       70,
-    //       size.x,
-    //       -ItemPlusBullet.itemPlusBulletSize.x,
-    //     ),
-    //   ),
-    // );
+    add(
+      SpawnComponent(
+        factory: (index) {
+          return ItemPlusBullet();
+        },
+        period: 1,
+        // 주의! : 총알이 리스폰 되는 포지션이 화면의 모서리에 겹치게 되면 총알이 움직이지 않음!
+        area: Rectangle.fromLTWH(
+          40,
+          70,
+          size.x,
+          -ItemPlusBullet.itemPlusBulletSize.x,
+        ),
+      ),
+    );
 
-    // add(
-    //   SpawnComponent(
-    //     factory: (index) {
-    //       return ItemLaserSupporter();
-    //     },
-    //     period: 1,
-    //     // 주의! : 총알이 리스폰 되는 포지션이 화면의 모서리에 겹치게 되면 총알이 움직이지 않음!
-    //     area: Rectangle.fromLTWH(
-    //       40,
-    //       70,
-    //       size.x,
-    //       -ItemPlusBullet.itemPlusBulletSize.x,
-    //     ),
-    //   ),
-    // );
+    add(
+      SpawnComponent(
+        factory: (index) {
+          return ItemLaserSupporter();
+        },
+        period: 1,
+        // 주의! : 총알이 리스폰 되는 포지션이 화면의 모서리에 겹치게 되면 총알이 움직이지 않음!
+        area: Rectangle.fromLTWH(
+          40,
+          70,
+          size.x,
+          -ItemPlusBullet.itemPlusBulletSize.x,
+        ),
+      ),
+    );
 
     boss = Boss();
 
