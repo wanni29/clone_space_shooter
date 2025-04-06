@@ -1,20 +1,38 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:space_shooter_game/space_shooter_game.dart';
+import 'package:space_shooter_game/sprites/exclamation_mark.dart';
+
+enum BossState { idle, movingLeft, movingRight, waitingForCharge, charging }
 
 class Boss extends SpriteAnimationComponent
     with HasGameRef<SpaceShooterGame>, CollisionCallbacks {
   Boss({super.position})
     : super(size: Vector2(150, 300), anchor: Anchor.center);
 
-  static const bossSize = 200.0;
-
   late final SpriteAnimation idleAnimation;
   late final SpriteAnimation moveLeftAnimation;
   late final SpriteAnimation moveRightAnimation;
   late final SpriteAnimation moveBackAnimation;
+
+  // 보스의 현재 상태
+  BossState _state = BossState.idle;
+
+  // 타겟팅 된 플레이어의 좌표값
+  Vector2? playerLastPosition;
+
+  // 타겟팅 완료 시 표시될 느낌표
+  late ExclamationMark exclamationMark;
+  bool showExclamation = false;
+
+  // 패턴 시작 타이머 변수
+  double _patternTimer = 0;
+
+  int _currentPatternIndex = 0;
 
   @override
   Future<void> onLoad() async {
@@ -55,27 +73,130 @@ class Boss extends SpriteAnimationComponent
       Sprite(image, srcPosition: Vector2(104, 192), srcSize: Vector2(32, 63)),
     ], stepTime: 0.16);
 
-    // 초기 상태는 정면
-    // 테스트 시작
-    // animation = idleAnimation;
-    animation = moveLeftAnimation;
-    // animation = moveRightAnimation;
-    // animation = moveBackAnimation;
-  }
-
-  void moveLeft() {
-    animation = moveLeftAnimation;
-  }
-
-  void moveRight() {
-    animation = moveRightAnimation;
-  }
-
-  void moveBack() {
-    animation = moveBackAnimation;
-  }
-
-  void idle() {
     animation = idleAnimation;
+
+    // 느낌표 텍스트 컴포넌트 생성
+    exclamationMark = ExclamationMark(
+      text: '!',
+      position: Vector2(150, 0),
+      textRenderer: TextPaint(
+        style: GoogleFonts.notoSans(
+          fontSize: 70,
+          fontWeight: FontWeight.w700,
+          color: const Color(0xFFFF0000),
+        ),
+      ),
+    );
+    exclamationMark.isVisible = false;
+    add(exclamationMark);
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+
+    // 보스가 쉬고 있을 때만 타이머 증가
+    if (_state == BossState.idle) {
+      _patternTimer += dt;
+
+      if (_patternTimer > 3.0) {
+        _executeCurrentPattern();
+        _patternTimer = 0;
+
+        // 다음 패턴으로 전환 (무한 반복되게)
+        _currentPatternIndex =
+            (_currentPatternIndex + 1) % 2; // 👈 지금은 패턴 2개니까 % 2
+      }
+    }
+    switch (_state) {
+      // 아무것도 안 함
+      case BossState.idle:
+        break;
+      case BossState.movingLeft:
+        _moveToLeftEdge(dt);
+        break;
+      case BossState.movingRight:
+        _moveToRightEdge(dt);
+        break;
+      case BossState.waitingForCharge:
+        if (!showExclamation) {
+          showExclamation = true;
+          exclamationMark.isVisible = true;
+          Future.delayed(const Duration(seconds: 1), () {
+            exclamationMark.isVisible = false;
+            _state = BossState.charging;
+          });
+        }
+        break;
+      case BossState.charging:
+        _chargeToPlayer(dt);
+        break;
+    }
+  }
+
+  void startPattern1(Vector2 playerPos) {
+    playerLastPosition = playerPos.clone();
+    animation = moveLeftAnimation;
+    showExclamation = false;
+    _state = BossState.movingLeft;
+  }
+
+  void startPattern2(Vector2 playerPos) {
+    playerLastPosition = playerPos.clone();
+    animation = moveRightAnimation;
+    showExclamation = false;
+    _state = BossState.movingRight;
+  }
+
+  void _moveToLeftEdge(double dt) {
+    const double targetX = 100.0;
+    if (x > targetX) {
+      position.x -= 200 * dt;
+    } else {
+      position.x = targetX;
+      animation = idleAnimation;
+      _state = BossState.waitingForCharge;
+    }
+  }
+
+  void _moveToRightEdge(double dt) {
+    final double targetX = gameRef.size.x - size.x;
+    if (x < targetX) {
+      position.x += 200 * dt; // 👉 오른쪽으로 이동!
+    } else {
+      position.x = targetX;
+      animation = idleAnimation;
+      _state = BossState.waitingForCharge;
+    }
+  }
+
+  void _chargeToPlayer(double dt) {
+    if (playerLastPosition == null) return;
+
+    final direction = (playerLastPosition! - position).normalized();
+    position += direction * 400 * dt;
+
+    if ((playerLastPosition! - position).length < 10) {
+      animation = idleAnimation;
+      _state = BossState.idle;
+    }
+  }
+
+  void _executeCurrentPattern() {
+    switch (_currentPatternIndex) {
+      case 0:
+        startPattern1(game.player.position);
+        break;
+      case 1:
+        startPattern2(game.player.position);
+        break;
+      // 내일 추가될 패턴들:
+      // case 2:
+      //   startPattern3();
+      //   break;
+      // case 3:
+      //   startPattern4();
+      //   break;
+    }
   }
 }
