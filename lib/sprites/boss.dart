@@ -6,8 +6,17 @@ import 'package:flame/components.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_shooter_game/space_shooter_game.dart';
 import 'package:space_shooter_game/sprites/exclamation_mark.dart';
+import 'package:space_shooter_game/sprites/meteor.dart';
 
-enum BossState { idle, movingLeft, movingRight, waitingForCharge, charging }
+enum BossState {
+  idle,
+  movingLeft,
+  movingRight,
+  movingCenter,
+  waitingForCharge,
+  charging,
+  dropMeteor,
+}
 
 class Boss extends SpriteAnimationComponent
     with HasGameRef<SpaceShooterGame>, CollisionCallbacks {
@@ -31,8 +40,10 @@ class Boss extends SpriteAnimationComponent
 
   // 패턴 시작 타이머 변수
   double _patternTimer = 0;
-
   int _currentPatternIndex = 0;
+
+  bool _hasDroppedMeteor = false; // 중복 방지용
+  // late final SpawnComponent _meteorSpawner;
 
   @override
   Future<void> onLoad() async {
@@ -105,7 +116,7 @@ class Boss extends SpriteAnimationComponent
 
         // 다음 패턴으로 전환 (무한 반복되게)
         _currentPatternIndex =
-            (_currentPatternIndex + 1) % 2; // 👈 지금은 패턴 2개니까 % 2
+            (_currentPatternIndex + 1) % 3; // 👈 지금은 패턴 2개니까 % 2
       }
     }
     switch (_state) {
@@ -118,6 +129,10 @@ class Boss extends SpriteAnimationComponent
       case BossState.movingRight:
         _moveToRightEdge(dt);
         break;
+      case BossState.movingCenter:
+        _moveToCenter(dt);
+        break;
+
       case BossState.waitingForCharge:
         if (!showExclamation) {
           showExclamation = true;
@@ -130,6 +145,10 @@ class Boss extends SpriteAnimationComponent
         break;
       case BossState.charging:
         _chargeToPlayer(dt);
+        break;
+      case BossState.dropMeteor:
+        _dropMeteor();
+        _state = BossState.idle;
         break;
     }
   }
@@ -146,6 +165,12 @@ class Boss extends SpriteAnimationComponent
     animation = moveRightAnimation;
     showExclamation = false;
     _state = BossState.movingRight;
+  }
+
+  void startPattern3() {
+    animation = idleAnimation;
+    showExclamation = false;
+    _state = BossState.movingCenter;
   }
 
   void _moveToLeftEdge(double dt) {
@@ -170,6 +195,37 @@ class Boss extends SpriteAnimationComponent
     }
   }
 
+  void _moveToCenter(double dt) {
+    final target = Vector2(game.size.x / 2, game.size.y / 4);
+    final direction = (target - position);
+
+    if (direction.length < 5) {
+      // 목적지에 도달하면 정확히 위치 고정
+      position = target.clone();
+
+      // 한 번만 실행되도록 플래그를 씌우거나 상태 확인
+      if (_state == BossState.movingCenter) {
+        _state = BossState.idle;
+
+        // 1초 후 느낌표 띄우기
+        Future.delayed(const Duration(seconds: 1), () {
+          if (!isMounted) return;
+          exclamationMark.isVisible = true;
+          showExclamation = true;
+
+          // 다시 1초 후 메테오 떨어뜨리기
+          Future.delayed(const Duration(seconds: 1), () {
+            if (!isMounted) return;
+            exclamationMark.isVisible = false;
+            _state = BossState.dropMeteor;
+          });
+        });
+      }
+    } else {
+      position += direction.normalized() * 150 * dt;
+    }
+  }
+
   void _chargeToPlayer(double dt) {
     if (playerLastPosition == null) return;
 
@@ -182,6 +238,27 @@ class Boss extends SpriteAnimationComponent
     }
   }
 
+  void _dropMeteor() {
+    if (_hasDroppedMeteor) return;
+    _hasDroppedMeteor = true;
+
+    final meteorCount = 5;
+    final spacing = gameRef.size.x / (meteorCount + 1);
+    final y = -50.0;
+
+    for (int i = 0; i < meteorCount; i++) {
+      final x = spacing * (i + 1);
+      final meteor = Meteor(position: Vector2(x, y), velocity: Vector2(0, 200));
+      gameRef.add(meteor);
+    }
+
+    // 2초 후 상태 초기화
+    Future.delayed(const Duration(seconds: 2), () {
+      _hasDroppedMeteor = false;
+      _state = BossState.idle;
+    });
+  }
+
   void _executeCurrentPattern() {
     switch (_currentPatternIndex) {
       case 0:
@@ -190,10 +267,9 @@ class Boss extends SpriteAnimationComponent
       case 1:
         startPattern2(game.player.position);
         break;
-      // 내일 추가될 패턴들:
-      // case 2:
-      //   startPattern3();
-      //   break;
+      case 2:
+        startPattern3();
+        break;
       // case 3:
       //   startPattern4();
       //   break;

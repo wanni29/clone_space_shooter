@@ -13,6 +13,7 @@ import 'package:space_shooter_game/sprites/enemy.dart';
 import 'package:space_shooter_game/sprites/health_bar.dart';
 import 'package:space_shooter_game/sprites/item_laser_supporter.dart';
 import 'package:space_shooter_game/sprites/item_plus_bullet.dart';
+import 'package:space_shooter_game/sprites/meteor.dart';
 import 'package:space_shooter_game/sprites/player.dart';
 
 enum Character { player }
