@@ -9,7 +9,7 @@ import 'package:space_shooter_game/sprites/laser_beam.dart';
 
 class Player extends SpriteAnimationComponent
     with HasGameRef<SpaceShooterGame> {
-  Player() : super(size: Vector2(100, 150), anchor: Anchor.center);
+  Player() : super(size: Vector2(80, 120), anchor: Anchor.center);
 
   int maxHealth = 3; // 최대 체력
   int currentHealth = 3; // 현재 체력

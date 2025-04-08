@@ -12,10 +12,12 @@ enum BossState {
   idle,
   movingLeft,
   movingRight,
-  movingCenter,
+  movingTopCenter,
+  movingBottomCenter,
   waitingForCharge,
   charging,
   dropMeteor,
+  hookMeteor,
 }
 
 class Boss extends SpriteAnimationComponent
@@ -43,7 +45,7 @@ class Boss extends SpriteAnimationComponent
   int _currentPatternIndex = 0;
 
   bool _hasDroppedMeteor = false; // 중복 방지용
-  // late final SpawnComponent _meteorSpawner;
+  bool _hashookedMeteor = false; // 중복 방지용
 
   @override
   Future<void> onLoad() async {
@@ -115,8 +117,7 @@ class Boss extends SpriteAnimationComponent
         _patternTimer = 0;
 
         // 다음 패턴으로 전환 (무한 반복되게)
-        _currentPatternIndex =
-            (_currentPatternIndex + 1) % 3; // 👈 지금은 패턴 2개니까 % 2
+        _currentPatternIndex = (_currentPatternIndex + 1) % 4;
       }
     }
     switch (_state) {
@@ -129,10 +130,12 @@ class Boss extends SpriteAnimationComponent
       case BossState.movingRight:
         _moveToRightEdge(dt);
         break;
-      case BossState.movingCenter:
-        _moveToCenter(dt);
+      case BossState.movingTopCenter:
+        _moveToTopCenter(dt);
         break;
-
+      case BossState.movingBottomCenter:
+        _moveToBottomCenter(dt);
+        break;
       case BossState.waitingForCharge:
         if (!showExclamation) {
           showExclamation = true;
@@ -148,6 +151,10 @@ class Boss extends SpriteAnimationComponent
         break;
       case BossState.dropMeteor:
         _dropMeteor();
+        _state = BossState.idle;
+        break;
+      case BossState.hookMeteor:
+        _hookMeteor();
         _state = BossState.idle;
         break;
     }
@@ -170,7 +177,13 @@ class Boss extends SpriteAnimationComponent
   void startPattern3() {
     animation = idleAnimation;
     showExclamation = false;
-    _state = BossState.movingCenter;
+    _state = BossState.movingTopCenter;
+  }
+
+  void startPattern4() {
+    animation = idleAnimation;
+    showExclamation = false;
+    _state = BossState.movingBottomCenter;
   }
 
   void _moveToLeftEdge(double dt) {
@@ -195,7 +208,7 @@ class Boss extends SpriteAnimationComponent
     }
   }
 
-  void _moveToCenter(double dt) {
+  void _moveToTopCenter(double dt) {
     final target = Vector2(game.size.x / 2, game.size.y / 4);
     final direction = (target - position);
 
@@ -204,7 +217,7 @@ class Boss extends SpriteAnimationComponent
       position = target.clone();
 
       // 한 번만 실행되도록 플래그를 씌우거나 상태 확인
-      if (_state == BossState.movingCenter) {
+      if (_state == BossState.movingTopCenter) {
         _state = BossState.idle;
 
         // 1초 후 느낌표 띄우기
@@ -222,7 +235,34 @@ class Boss extends SpriteAnimationComponent
         });
       }
     } else {
-      position += direction.normalized() * 150 * dt;
+      position += direction.normalized() * 250 * dt;
+    }
+  }
+
+  void _moveToBottomCenter(double dt) {
+    final target = Vector2(game.size.x / 2, game.size.y / 2);
+    final direction = target - position;
+
+    if (direction.length < 20) {
+      position = target.clone();
+      if (_state == BossState.movingBottomCenter) {
+        _state = BossState.idle;
+
+        // 1초 후 느낌표 표시
+        Future.delayed(const Duration(seconds: 1), () {
+          if (!isMounted) return;
+          exclamationMark.isVisible = true;
+          showExclamation = true;
+
+          Future.delayed(const Duration(seconds: 1), () {
+            if (!isMounted) return;
+            exclamationMark.isVisible = false;
+            _state = BossState.hookMeteor;
+          });
+        });
+      }
+    } else {
+      position += direction.normalized() * 280 * dt;
     }
   }
 
@@ -259,6 +299,45 @@ class Boss extends SpriteAnimationComponent
     });
   }
 
+  void _hookMeteor() {
+    if (_hashookedMeteor) return;
+    _hashookedMeteor = true;
+
+    final leftStartX = -50.0;
+    final rightStartX = gameRef.size.x + 50;
+    final ySpacing = 230.0;
+
+    // 왼쪽에서 출발하는 운석 4개
+    for (var i = 0; i < 4; i++) {
+      final y = 100 + i * ySpacing;
+      final meteor = Meteor(
+        size: Vector2(60, 60),
+        position: Vector2(leftStartX, y),
+        velocity: Vector2(400, 0),
+      );
+      gameRef.add(meteor);
+    }
+
+    // 오른쪽 운석은 2초 후 출발
+    Future.delayed(const Duration(seconds: 1), () {
+      for (var i = 0; i < 3; i++) {
+        final y = 250 + i * ySpacing;
+        final meteor = Meteor(
+          size: Vector2(60, 60),
+          position: Vector2(rightStartX, y),
+          velocity: Vector2(-400, 0),
+        );
+        gameRef.add(meteor);
+      }
+    });
+
+    // 2초 후 상태 초기화
+    Future.delayed(const Duration(seconds: 2), () {
+      _hashookedMeteor = false;
+      _state = BossState.idle;
+    });
+  }
+
   void _executeCurrentPattern() {
     switch (_currentPatternIndex) {
       case 0:
@@ -270,9 +349,9 @@ class Boss extends SpriteAnimationComponent
       case 2:
         startPattern3();
         break;
-      // case 3:
-      //   startPattern4();
-      //   break;
+      case 3:
+        startPattern4();
+        break;
     }
   }
 }

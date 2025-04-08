@@ -11,8 +11,11 @@ class Meteor extends SpriteAnimationComponent
   Vector2 velocity; // 운석 속도 추가
   late final SpriteAnimation fallAnimation;
 
-  Meteor({super.position, required this.velocity})
-    : super(size: Vector2(80, 80), anchor: Anchor.center);
+  Meteor({super.position, required this.velocity, Vector2? size})
+    : super(
+        size: size ?? Vector2(80, 80), // 사이즈값이 만약 없다면 기본값 설정
+        anchor: Anchor.center,
+      );
 
   @override
   Future<void> onLoad() async {
