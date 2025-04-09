@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:flame/effects.dart';
 import 'package:flutter/material.dart';
 import 'package:space_shooter_game/sprites/bullet.dart';
 import 'package:space_shooter_game/space_shooter_game.dart';
@@ -27,6 +28,8 @@ class Player extends SpriteAnimationComponent
   // -- 레이저 서포트 관련 상태 --
   final int maxLaserSupporters = 2;
   final List<LaserSupporterAttachment> laserSupporters = [];
+
+  bool isFrozen = false;
 
   bool canAddLaserSupporter() => laserSupporters.length < maxLaserSupporters;
 
@@ -115,10 +118,12 @@ class Player extends SpriteAnimationComponent
   SpriteAnimation get playerAnimation => _playerAnimation;
 
   void move(Vector2 delta) {
+    if (isFrozen) return;
     position.add(delta);
   }
 
   void startShooting() {
+    if (isFrozen) return;
     _bulletSpawner.timer.start();
   }
 
@@ -145,9 +150,41 @@ class Player extends SpriteAnimationComponent
     }
   }
 
+  void startBossIntroPhase() {
+    isFrozen = true;
+
+    // 총알 발사 멈추기
+    stopShooting();
+
+    // 부드럽게 중앙 하단으로 이동
+    final targetPosition = Vector2(
+      gameRef.size.x / 2 - size.x / 2,
+      gameRef.size.y - size.y - 20,
+    );
+
+    add(
+      MoveEffect.to(
+        targetPosition,
+        EffectController(duration: 1.5, curve: Curves.easeInOut),
+        onComplete: () {
+          // 이동 끝나고 화면 정리
+          gameRef.clearScreenExceptPlayerAndBoss();
+
+          Future.delayed(Duration(seconds: 2), () {
+            gameRef.boss.startIntroFormation();
+          });
+        },
+      ),
+    );
+  }
+
   @override
   void update(double dt) {
+    // 이 부분은 애니메이션에서 가장 중요한 요소기 때문에
+    // 상단에서 위치를 옮기면 안됨 -> 애니메이션 요소가 멈춰버릴수도있음!
     super.update(dt);
+
+    if (isFrozen) return;
 
     // Player update 내부에서 supporter 위치 계산
     final offset1 = Vector2(130, 100);

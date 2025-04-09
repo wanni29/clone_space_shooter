@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flame/components.dart';
+import 'package:flame/effects.dart';
 import 'package:flame/experimental.dart';
 import 'package:flame/game.dart';
 import 'package:flame/input.dart';
@@ -23,6 +24,9 @@ class SpaceShooterGame extends FlameGame
   late Player player;
   late Boss boss;
   late HealthBar healthBar;
+  late SpawnComponent enemySpawner;
+  late SpawnComponent itemPlusBulletSpawner;
+  late SpawnComponent itemLaserSupporterSpawner;
 
   GameManager gameManager = GameManager();
 
@@ -41,58 +45,50 @@ class SpaceShooterGame extends FlameGame
     add(parallax);
 
     player = Player();
+    boss = Boss();
     add(player);
 
     healthBar = HealthBar(maxHealth: player.maxHealth);
     add(healthBar);
 
-    // add(
-    //   SpawnComponent(
-    //     factory: (index) {
-    //       return Enemy();
-    //     },
-    //     period: 1,
-    //     area: Rectangle.fromLTWH(0, 0, size.x, -Enemy.enemySize),
-    //   ),
-    // );
+    enemySpawner = SpawnComponent(
+      factory: (index) => Enemy(),
+      period: 1,
+      area: Rectangle.fromLTWH(0, 0, size.x, -Enemy.enemySize),
+    );
+    add(enemySpawner);
 
-    // add(
-    //   SpawnComponent(
-    //     factory: (index) {
-    //       return ItemPlusBullet();
-    //     },
-    //     period: 1,
-    //     // 주의! : 총알이 리스폰 되는 포지션이 화면의 모서리에 겹치게 되면 총알이 움직이지 않음!
-    //     area: Rectangle.fromLTWH(
-    //       40,
-    //       70,
-    //       size.x,
-    //       -ItemPlusBullet.itemPlusBulletSize.x,
-    //     ),
-    //   ),
-    // );
+    itemPlusBulletSpawner = SpawnComponent(
+      factory: (index) => ItemPlusBullet(),
+      period: 1,
+      area: Rectangle.fromLTWH(
+        40,
+        70,
+        size.x,
+        -ItemPlusBullet.itemPlusBulletSize.x,
+      ),
+    );
+    add(itemPlusBulletSpawner);
 
-    // add(
-    //   SpawnComponent(
-    //     factory: (index) {
-    //       return ItemLaserSupporter();
-    //     },
-    //     period: 1,
-    //     // 주의! : 총알이 리스폰 되는 포지션이 화면의 모서리에 겹치게 되면 총알이 움직이지 않음!
-    //     area: Rectangle.fromLTWH(
-    //       40,
-    //       70,
-    //       size.x,
-    //       -ItemPlusBullet.itemPlusBulletSize.x,
-    //     ),
-    //   ),
-    // );
-
-    boss = Boss();
-
-    add(boss);
+    itemLaserSupporterSpawner = SpawnComponent(
+      factory: (index) => ItemLaserSupporter(),
+      period: 1,
+      area: Rectangle.fromLTWH(
+        40,
+        70,
+        size.x,
+        -ItemPlusBullet.itemPlusBulletSize.x,
+      ),
+    );
+    add(itemLaserSupporterSpawner);
 
     overlays.add('gameOverlay');
+
+    // 30초 후에 보스 등장 연출 시작
+    Future.delayed(Duration(seconds: 5), () {
+      player.startBossIntroPhase();
+      add(boss);
+    });
   }
 
   @override
@@ -141,6 +137,46 @@ class SpaceShooterGame extends FlameGame
     gameManager.state = GameState.gameOver;
     player.removeFromParent();
     overlays.add('gameOverOverlay');
+  }
+
+  void clearScreenExceptPlayerAndBoss() {
+    // 적 제거: 서서히 사라짐
+    for (final enemy in children.whereType<Enemy>()) {
+      enemy.add(
+        OpacityEffect.to(
+          0, // 완전 투명
+          EffectController(duration: 0.5),
+          onComplete: () => enemy.removeFromParent(),
+        ),
+      );
+    }
+
+    // 아이템 제거: PlusBullet
+    for (final item in children.whereType<ItemPlusBullet>()) {
+      item.add(
+        OpacityEffect.to(
+          0,
+          EffectController(duration: 0.5),
+          onComplete: () => item.removeFromParent(),
+        ),
+      );
+    }
+
+    // 아이템 제거: LaserSupporter
+    for (final item in children.whereType<ItemLaserSupporter>()) {
+      item.add(
+        OpacityEffect.to(
+          0,
+          EffectController(duration: 0.5),
+          onComplete: () => item.removeFromParent(),
+        ),
+      );
+    }
+
+    // SpawnComponent 제거 (즉시)
+    enemySpawner.removeFromParent();
+    itemPlusBulletSpawner.removeFromParent();
+    itemLaserSupporterSpawner.removeFromParent();
   }
 
   @override

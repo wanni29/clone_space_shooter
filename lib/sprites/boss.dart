@@ -3,12 +3,16 @@ import 'dart:ui';
 
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:flame/effects.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_shooter_game/space_shooter_game.dart';
+import 'package:space_shooter_game/sprites/enemy.dart';
 import 'package:space_shooter_game/sprites/exclamation_mark.dart';
 import 'package:space_shooter_game/sprites/meteor.dart';
 
 enum BossState {
+  intro,
   idle,
   movingLeft,
   movingRight,
@@ -31,7 +35,7 @@ class Boss extends SpriteAnimationComponent
   late final SpriteAnimation moveBackAnimation;
 
   // 보스의 현재 상태
-  BossState _state = BossState.idle;
+  BossState _state = BossState.intro;
 
   // 타겟팅 된 플레이어의 좌표값
   Vector2? playerLastPosition;
@@ -47,13 +51,15 @@ class Boss extends SpriteAnimationComponent
   bool _hasDroppedMeteor = false; // 중복 방지용
   bool _hashookedMeteor = false; // 중복 방지용
 
+  bool _hasStartedIntro = false;
+
   @override
   Future<void> onLoad() async {
     super.onLoad();
 
     add(RectangleHitbox());
 
-    position = Vector2(game.size.x / 2, game.size.y / 4);
+    // position = Vector2(game.size.x / 2, game.size.y / 4);
 
     // 어떤 이미지인지 일단 들고오는 과정
     final image = await game.images.load('boss.png');
@@ -121,6 +127,11 @@ class Boss extends SpriteAnimationComponent
       }
     }
     switch (_state) {
+      case BossState.intro:
+        if (!_hasStartedIntro) {
+          startIntroFormation();
+        }
+        break;
       // 아무것도 안 함
       case BossState.idle:
         break;
@@ -354,4 +365,66 @@ class Boss extends SpriteAnimationComponent
         break;
     }
   }
+
+  void startIntroFormation() {
+    if (_hasStartedIntro) return;
+    _hasStartedIntro = true;
+
+    final formationYTop = 200.0;
+
+    position = Vector2(gameRef.size.x / 2 - size.x / 2, -200);
+
+    add(
+      MoveEffect.to(
+        Vector2(gameRef.size.x / 2 - size.x / 2, formationYTop),
+        EffectController(duration: 1.5, curve: Curves.easeOut),
+        onComplete: () {
+          _state = BossState.idle;
+        },
+      ),
+    );
+    // final formationYTop = 200.0;
+    final formationYBottom = 280.0;
+    final enemiesPerRow = 10;
+
+    List<Enemy> enemies = [];
+
+    // 화면 너비 기준으로 spacing 자동 계산
+    final margin = 20.0; // 양쪽 여백
+    final availableWidth = gameRef.size.x - margin * 2;
+    final spacing = availableWidth / (enemiesPerRow - 1); // 적 사이 간격
+    final startX = margin;
+
+    for (int row = 0; row < 2; row++) {
+      final yPos = row == 0 ? formationYTop : formationYBottom;
+
+      for (int i = 0; i < enemiesPerRow; i++) {
+        final xPos = startX + i * spacing;
+        final enemy = Enemy()..position = Vector2(xPos, -100);
+
+        enemy.add(
+          MoveEffect.to(
+            Vector2(xPos, yPos),
+            EffectController(
+              duration: 1,
+              curve: Curves.easeOut,
+              startDelay: 0.5,
+            ),
+          ),
+        );
+
+        enemies.add(enemy);
+      }
+    }
+
+    gameRef.addAll(enemies);
+
+    // 적들 정지 상태 유지 후 동작
+    Future.delayed(const Duration(seconds: 4), () {
+      // 적들 동작 재개
+    });
+  }
+
+  // 본격 전투 시작
+  void startBattlePhase() {}
 }
