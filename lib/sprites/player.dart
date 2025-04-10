@@ -22,7 +22,7 @@ class Player extends SpriteAnimationComponent
     1,
   ); // ValueNotifier 사용
 
-  late final SpawnComponent _bulletSpawner;
+  late final SpawnComponent bulletSpawner;
   late final SpriteAnimation _playerAnimation;
 
   // -- 레이저 서포트 관련 상태 --
@@ -61,14 +61,14 @@ class Player extends SpriteAnimationComponent
     animation = _playerAnimation;
     position = game.size / 2;
 
-    _bulletSpawner = SpawnComponent(
+    bulletSpawner = SpawnComponent(
       period: .2,
       selfPositioning: true,
       factory: (index) => BulletGroup(_createBullets()),
       autoStart: false,
     );
 
-    game.add(_bulletSpawner);
+    game.add(bulletSpawner);
   }
 
   // 🔹 현재 모드에 따라 총알 생성
@@ -124,11 +124,11 @@ class Player extends SpriteAnimationComponent
 
   void startShooting() {
     if (isFrozen) return;
-    _bulletSpawner.timer.start();
+    bulletSpawner.timer.start();
   }
 
   void stopShooting() {
-    _bulletSpawner.timer.stop();
+    bulletSpawner.timer.stop();
   }
 
   void takeDamage() {

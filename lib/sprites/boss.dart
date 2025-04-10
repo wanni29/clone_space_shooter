@@ -7,6 +7,7 @@ import 'package:flame/effects.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:space_shooter_game/space_shooter_game.dart';
+import 'package:space_shooter_game/sprites/boss_formation_enemy.dart';
 import 'package:space_shooter_game/sprites/enemy.dart';
 import 'package:space_shooter_game/sprites/exclamation_mark.dart';
 import 'package:space_shooter_game/sprites/meteor.dart';
@@ -383,24 +384,24 @@ class Boss extends SpriteAnimationComponent
         },
       ),
     );
-    // final formationYTop = 200.0;
+
     final formationYBottom = 280.0;
     final enemiesPerRow = 10;
 
     List<Enemy> enemies = [];
 
-    // 화면 너비 기준으로 spacing 자동 계산
+    // 💡 spacing 계산 (균등 간격 + 좌우 여백)
     final margin = 20.0; // 양쪽 여백
     final availableWidth = gameRef.size.x - margin * 2;
-    final spacing = availableWidth / (enemiesPerRow - 1); // 적 사이 간격
-    final startX = margin;
+    final spacing = availableWidth / enemiesPerRow;
+    final startX = margin + spacing / 2;
 
     for (int row = 0; row < 2; row++) {
       final yPos = row == 0 ? formationYTop : formationYBottom;
 
       for (int i = 0; i < enemiesPerRow; i++) {
         final xPos = startX + i * spacing;
-        final enemy = Enemy()..position = Vector2(xPos, -100);
+        final enemy = BossFormationEnemy()..position = Vector2(xPos, -100);
 
         enemy.add(
           MoveEffect.to(
@@ -419,7 +420,6 @@ class Boss extends SpriteAnimationComponent
 
     gameRef.addAll(enemies);
 
-    // 적들 정지 상태 유지 후 동작
     Future.delayed(const Duration(seconds: 4), () {
       // 적들 동작 재개
     });

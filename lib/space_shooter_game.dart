@@ -10,6 +10,8 @@ import 'package:flame/src/gestures/events.dart';
 import 'package:flutter/rendering.dart';
 import 'package:space_shooter_game/managers/game_manager.dart';
 import 'package:space_shooter_game/sprites/boss.dart';
+import 'package:space_shooter_game/sprites/boss_formation_enemy.dart';
+import 'package:space_shooter_game/sprites/bullet.dart';
 import 'package:space_shooter_game/sprites/enemy.dart';
 import 'package:space_shooter_game/sprites/health_bar.dart';
 import 'package:space_shooter_game/sprites/item_laser_supporter.dart';
@@ -142,13 +144,15 @@ class SpaceShooterGame extends FlameGame
   void clearScreenExceptPlayerAndBoss() {
     // 적 제거: 서서히 사라짐
     for (final enemy in children.whereType<Enemy>()) {
-      enemy.add(
-        OpacityEffect.to(
-          0, // 완전 투명
-          EffectController(duration: 0.5),
-          onComplete: () => enemy.removeFromParent(),
-        ),
-      );
+      if (enemy is! BossFormationEnemy) {
+        enemy.add(
+          OpacityEffect.to(
+            0,
+            EffectController(duration: 0.5),
+            onComplete: () => enemy.removeFromParent(),
+          ),
+        );
+      }
     }
 
     // 아이템 제거: PlusBullet
@@ -164,6 +168,16 @@ class SpaceShooterGame extends FlameGame
 
     // 아이템 제거: LaserSupporter
     for (final item in children.whereType<ItemLaserSupporter>()) {
+      item.add(
+        OpacityEffect.to(
+          0,
+          EffectController(duration: 0.5),
+          onComplete: () => item.removeFromParent(),
+        ),
+      );
+    }
+
+    for (final item in children.whereType<Bullet>()) {
       item.add(
         OpacityEffect.to(
           0,
